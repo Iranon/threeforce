@@ -1,7 +1,7 @@
 {
   "name": "threeforce",
-  "version": "0.0.1",
-  "description": "Generate your Three.js TypeScript project",
+  "version": "0.0.2",
+  "description": "Generate your Three.js project",
   "main": "index.js",
   "bin": {
     "threeforce": "./dist/threeforce.js"

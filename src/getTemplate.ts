@@ -3,7 +3,7 @@ import https from 'https';
 import AdmZip from 'adm-zip';
 import { URL } from 'url';
 
-export const getTemplate = (projectName: string, urlString?: string) => new Promise<string | undefined>((resolve, reject) => {
+const getTemplate = (projectName: string, urlString?: string) => new Promise<string | undefined>((resolve, reject) => {
     let url: URL;
     //Check if url (possibly dependent on the 'urlString' parameter) is valid
     try {
@@ -20,8 +20,7 @@ export const getTemplate = (projectName: string, urlString?: string) => new Prom
         path: url.pathname,
         method: "GET"
     }, (response) => {
-        console.log("Template URL: ", urlString, "\n");
-        console.log("Downloading...\n");
+        console.log("\nDownloading template from: ", urlString, "\n");
         console.log("Response Status Code: ", response.statusCode, '\n');
         if (response.statusCode === 200) {
             const data: Uint8Array[] = [];
@@ -29,18 +28,25 @@ export const getTemplate = (projectName: string, urlString?: string) => new Prom
                 data.push(chunk);
             }).on('end', () => {
                 //Extracting
-                const zipBuffer = new AdmZip(Buffer.concat(data));
-                const mainFolderName = zipBuffer.getEntries()[0].entryName.slice(0, -1); //removing trailing '/'
-                zipBuffer.extractAllToAsync(`${projectName}`, /*overwrite*/true, undefined, () => {
-                    console.log("Extraction complete\n");
-                    resolve(mainFolderName);
-                });
+                console.log("Unzipping...\n");
+                try {
+                    const zipBuffer = new AdmZip(Buffer.concat(data));
+                    const mainFolderName = zipBuffer.getEntries()[0].entryName.slice(0, -1); //removing trailing '/'
+                    zipBuffer.extractAllToAsync(`${projectName}`, /*overwrite*/true, undefined, () => {
+                        console.log("Extraction complete\n");
+                        resolve(mainFolderName);
+                    });
+                } catch {
+                    reject("ERROR: Invalid or unsupported zip format.");
+                }
             });
         }
         else { console.log("Download failed\n"); reject("NOT 200"); }
     })
     .on('error', (err) => {
-        console.log("Error downloading the template from: ", urlString);
+        console.log("ERROR downloading the template from: ", urlString, "\n");
         reject(err);
     })
 });
+
+export default getTemplate;

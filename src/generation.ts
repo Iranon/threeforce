@@ -1,5 +1,5 @@
 import { stat, rename } from 'fs/promises';
-import { getTemplate } from './templateDownload';
+import getTemplate from './getTemplate';
 
 export const generateTemplate = async (projectName: string, urlString: string | undefined) => {
     //check if the directory exists (if not fs.stat throw an error and trigger the catch branch)
